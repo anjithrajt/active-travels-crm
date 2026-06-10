@@ -37,6 +37,17 @@ function App() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+const deleteCustomer = async (id) => {
+  try {
+    await axios.delete(
+      `http://localhost:5000/customers/${id}`
+    );
+
+    fetchCustomers();
+  } catch (err) {
+    console.error(err);
+  }
+};
     try {
       await axios.post(
         "http://localhost:5000/customers",
@@ -123,6 +134,7 @@ function App() {
               <th className="text-left p-3">Phone</th>
               <th className="text-left p-3">Email</th>
               <th className="text-left p-3">Destination</th>
+              <th className="text-left p-3">Actions</th>
             </tr>
           </thead>
 
@@ -133,6 +145,14 @@ function App() {
                 <td className="p-3">{customer.phone}</td>
                 <td className="p-3">{customer.email}</td>
                 <td className="p-3">{customer.destination}</td>
+                <td className="p-3">
+  <button
+    onClick={() => deleteCustomer(customer.id)}
+    className="bg-red-600 text-white px-3 py-1 rounded"
+  >
+    Delete
+  </button>
+</td>
               </tr>
             ))}
           </tbody>

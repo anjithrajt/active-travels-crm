@@ -15,75 +15,98 @@ app.get("/", (req, res) => {
   });
 });
 
-app.post("/customers", async (req, res) => {
+app.post("/leads", async (req, res) => {
   try {
     const {
       name,
       phone,
-      email,
-      passport_no,
-      passport_expiry,
       destination,
-      notes,
+      status,
+      notes
     } = req.body;
 
     const result = await pool.query(
-      `INSERT INTO customers
-      (name, phone, email, passport_no, passport_expiry, destination, notes)
-      VALUES ($1,$2,$3,$4,$5,$6,$7)
-      RETURNING *`,
+      `INSERT INTO leads
+       (name, phone, destination, status, notes)
+       VALUES ($1,$2,$3,$4,$5)
+       RETURNING *`,
       [
         name,
         phone,
-        email,
-        passport_no,
-        passport_expiry,
         destination,
-        notes,
+        status || "New",
+        notes
       ]
     );
 
-    res.status(201).json(result.rows[0]);
+    res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
+
     res.status(500).json({
-      error: "Failed to add customer",
+      error: "Failed to add lead"
     });
   }
 });
-
-app.get("/customers", async (req, res) => {
+app.get("/leads", async (req, res) => {
   try {
     const result = await pool.query(
-      "SELECT * FROM customers ORDER BY id DESC"
+      "SELECT * FROM leads ORDER BY id DESC"
     );
 
     res.json(result.rows);
   } catch (err) {
     console.error(err);
+
     res.status(500).json({
-      error: "Failed to fetch customers",
+      error: "Failed to fetch leads"
     });
   }
 });
 
-app.delete("/customers/:id", async (req, res) => {
+app.delete("/leads/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
     await pool.query(
-      "DELETE FROM customers WHERE id = $1",
+      "DELETE FROM leads WHERE id=$1",
       [id]
     );
 
     res.json({
-      message: "Customer deleted successfully",
+      message: "Lead deleted"
     });
   } catch (err) {
     console.error(err);
 
     res.status(500).json({
-      error: "Failed to delete customer",
+      error: "Failed to delete lead"
+    });
+  }
+});
+app.get("/dashboard/stats", async (req, res) => {
+  try {
+    const totalCustomers = await pool.query(
+      "SELECT COUNT(*) FROM customers"
+    );
+
+    const destinations = await pool.query(
+      "SELECT COUNT(DISTINCT destination) FROM customers"
+    );
+
+    res.json({
+      totalCustomers: Number(
+        totalCustomers.rows[0].count
+      ),
+      destinations: Number(
+        destinations.rows[0].count
+      ),
+    });
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: "Failed to fetch stats",
     });
   }
 });

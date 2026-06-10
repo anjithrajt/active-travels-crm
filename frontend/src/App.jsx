@@ -4,6 +4,7 @@ import axios from "axios";
 function App() {
   const [customers, setCustomers] = useState([]);
 
+  const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -54,16 +55,22 @@ function App() {
   };
 
   const deleteCustomer = async (id) => {
-    try {
-      await axios.delete(
-        `http://localhost:5000/customers/${id}`
-      );
+  try {
+    await axios.delete(
+      `http://localhost:5000/customers/${id}`
+    );
 
-      fetchCustomers();
-    } catch (err) {
-      console.error(err);
-    }
-  };
+    fetchCustomers();
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const filteredCustomers = customers.filter((customer) =>
+  customer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  customer.phone?.includes(searchTerm) ||
+  customer.destination?.toLowerCase().includes(searchTerm.toLowerCase())
+);
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
@@ -71,11 +78,53 @@ function App() {
         Active Travels CRM
       </h1>
 
+	<div className="grid md:grid-cols-3 gap-4 mb-6">
+
+  <div className="bg-white p-6 rounded-lg shadow">
+    <h3 className="text-gray-500">Total Customers</h3>
+    <p className="text-3xl font-bold">
+      {customers.length}
+    </p>
+  </div>
+
+  <div className="bg-white p-6 rounded-lg shadow">
+    <h3 className="text-gray-500">UK Customers</h3>
+    <p className="text-3xl font-bold">
+      {
+        customers.filter(
+          c => c.destination?.toLowerCase() === "england"
+        ).length
+      }
+    </p>
+  </div>
+
+  <div className="bg-white p-6 rounded-lg shadow">
+    <h3 className="text-gray-500">Other Destinations</h3>
+    <p className="text-3xl font-bold">
+      {
+        customers.filter(
+          c => c.destination?.toLowerCase() !== "england"
+        ).length
+      }
+    </p>
+  </div>
+
+</div>
       <div className="bg-white shadow rounded-lg p-6">
         <h2 className="text-xl font-semibold mb-4">
           Customers
         </h2>
+        <input
+  type="text"
+  placeholder="🔍 Search by name, phone or destination"
+  value={searchTerm}
+  onChange={(e) => setSearchTerm(e.target.value)}
+  className="w-full border p-3 rounded mb-4"
+/>
 
+<p className="mb-4 text-gray-600">
+  Showing {filteredCustomers.length} customer(s)
+</p>
         <form
           onSubmit={handleSubmit}
           className="mb-6 grid md:grid-cols-4 gap-4"
@@ -137,23 +186,31 @@ function App() {
           </thead>
 
           <tbody>
-            {customers.map((customer) => (
-              <tr key={customer.id} className="border-b">
-                <td className="p-3">{customer.name}</td>
-                <td className="p-3">{customer.phone}</td>
-                <td className="p-3">{customer.email}</td>
-                <td className="p-3">{customer.destination}</td>
-                <td className="p-3">
-                  <button
-                    onClick={() => deleteCustomer(customer.id)}
-                    className="bg-red-600 text-white px-3 py-1 rounded"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
+  {filteredCustomers.length > 0 ? (
+    filteredCustomers.map((customer) => (
+      <tr key={customer.id} className="border-b">
+        <td className="p-3">{customer.name}</td>
+        <td className="p-3">{customer.phone}</td>
+        <td className="p-3">{customer.email}</td>
+        <td className="p-3">{customer.destination}</td>
+        <td className="p-3">
+          <button
+            onClick={() => deleteCustomer(customer.id)}
+            className="bg-red-600 text-white px-3 py-1 rounded"
+          >
+            Delete
+          </button>
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan="5" className="p-4 text-center">
+        No customers found
+      </td>
+    </tr>
+  )}
+</tbody>
         </table>
       </div>
     </div>

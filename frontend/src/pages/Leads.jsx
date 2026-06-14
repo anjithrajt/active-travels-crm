@@ -69,11 +69,23 @@ function Leads() {
     }
   };
 
-  const updateStatus = async (id, status) => {
+const updateStatus = async (id, status) => {
   try {
     await axios.put(
       `http://localhost:5000/leads/${id}/status`,
       { status }
+    );
+
+    fetchLeads();
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const convertLead = async (id) => {
+  try {
+    await axios.post(
+      `http://localhost:5000/leads/${id}/convert`
     );
 
     fetchLeads();
@@ -207,16 +219,27 @@ function Leads() {
   </select>
 </td>
 
-                <td className="p-3">
-                  <button
-                    onClick={() =>
-                      deleteLead(lead.id)
-                    }
-                    className="bg-red-600 text-white px-3 py-1 rounded"
-                  >
-                    Delete
-                  </button>
-                </td>
+                <td className="p-3 flex gap-2">
+
+  <button
+    onClick={() =>
+      convertLead(lead.id)
+    }
+    className="bg-green-600 text-white px-3 py-1 rounded"
+  >
+    Convert
+  </button>
+
+  <button
+    onClick={() =>
+      deleteLead(lead.id)
+    }
+    className="bg-red-600 text-white px-3 py-1 rounded"
+  >
+    Delete
+  </button>
+
+</td>
               </tr>
             ))}
           </tbody>

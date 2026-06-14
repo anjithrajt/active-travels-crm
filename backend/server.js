@@ -365,6 +365,50 @@ app.get("/followups", async (req, res) => {
     });
   }
 });
+app.post("/leads/:id/convert", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const leadResult = await pool.query(
+      "SELECT * FROM leads WHERE id=$1",
+      [id]
+    );
+
+    if (leadResult.rows.length === 0) {
+      return res.status(404).json({
+        error: "Lead not found",
+      });
+    }
+
+    const lead = leadResult.rows[0];
+
+    const customerResult = await pool.query(
+      `INSERT INTO customers
+      (name, phone, destination)
+      VALUES ($1,$2,$3)
+      RETURNING *`,
+      [
+        lead.name,
+        lead.phone,
+        lead.destination,
+      ]
+    );
+
+    await pool.query(
+      "DELETE FROM leads WHERE id=$1",
+      [id]
+    );
+
+    res.json(customerResult.rows[0]);
+
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: "Failed to convert lead",
+    });
+  }
+});
 app.listen(5000, () => {
   console.log("Server running on port 5000");
 });

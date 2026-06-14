@@ -3,7 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const pool = require("./db");
-
+const PDFDocument = require("pdfkit");
 const app = express();
 
 app.use(cors());
@@ -129,6 +129,246 @@ app.put("/leads/:id/status", async (req, res) => {
 
     res.status(500).json({
       error: "Failed to update status",
+    });
+  }
+});
+app.post("/customers", async (req, res) => {
+  try {
+    const {
+      name,
+      phone,
+      email,
+      destination,
+      passport_number,
+      passport_expiry
+    } = req.body;
+
+    const result = await pool.query(
+      `INSERT INTO customers
+      (
+        name,
+        phone,
+        email,
+        destination,
+        passport_number,
+        passport_expiry
+      )
+      VALUES ($1,$2,$3,$4,$5,$6)
+      RETURNING *`,
+      [
+        name,
+        phone,
+        email,
+        destination,
+        passport_number,
+        passport_expiry
+      ]
+    );
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: "Failed to add customer"
+    });
+  }
+});
+
+app.get("/customers", async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM customers ORDER BY id DESC"
+    );
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: "Failed to fetch customers"
+    });
+  }
+});
+
+app.delete("/customers/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await pool.query(
+      "DELETE FROM customers WHERE id = $1",
+      [id]
+    );
+
+    res.json({
+      message: "Customer deleted"
+    });
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: "Failed to delete customer"
+    });
+  }
+});
+app.get("/passport-alerts", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT *
+      FROM customers
+      WHERE passport_expiry IS NOT NULL
+      AND passport_expiry <= CURRENT_DATE + INTERVAL '180 days'
+      ORDER BY passport_expiry ASC
+    `);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: "Failed to fetch alerts",
+    });
+  }
+});
+app.get("/documents/customer/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await pool.query(
+      "SELECT * FROM customers WHERE id = $1",
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        error: "Customer not found",
+      });
+    }
+
+    const customer = result.rows[0];
+
+    const doc = new PDFDocument();
+
+    res.setHeader(
+      "Content-Type",
+      "application/pdf"
+    );
+
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=customer-${id}.pdf`
+    );
+
+    doc.pipe(res);
+
+    doc.fontSize(24)
+       .text("Active Travels CRM", {
+         align: "center",
+       });
+
+    doc.moveDown();
+
+    doc.fontSize(18)
+       .text("Customer Summary");
+
+    doc.moveDown();
+
+    doc.fontSize(12)
+       .text(`Name: ${customer.name || ""}`);
+
+    doc.text(`Phone: ${customer.phone || ""}`);
+
+    doc.text(`Email: ${customer.email || ""}`);
+
+    doc.text(
+      `Destination: ${customer.destination || ""}`
+    );
+
+    doc.text(
+      `Passport Number: ${
+        customer.passport_number || ""
+      }`
+    );
+
+    doc.text(
+      `Passport Expiry: ${
+        customer.passport_expiry || ""
+      }`
+    );
+
+    doc.end();
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: "Failed to generate PDF",
+    });
+  }
+});
+app.post("/followups", async (req, res) => {
+  try {
+    const {
+      customer_id,
+      task,
+      due_date
+    } = req.body;
+
+    const result = await pool.query(
+      `INSERT INTO followups
+      (customer_id, task, due_date)
+      VALUES ($1,$2,$3)
+      RETURNING *`,
+      [customer_id, task, due_date]
+    );
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: "Failed to create follow-up"
+    });
+  }
+});
+app.get("/followups", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        followups.*,
+        customers.name
+      FROM followups
+      JOIN customers
+      ON customers.id = followups.customer_id
+      ORDER BY due_date ASC
+    `);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: "Failed to fetch follow-ups"
+    });
+  }
+});
+app.get("/followups", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        followups.*,
+        customers.name
+      FROM followups
+      JOIN customers
+      ON customers.id = followups.customer_id
+      ORDER BY due_date ASC
+    `);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: "Failed to fetch follow-ups"
     });
   }
 });

@@ -16,6 +16,8 @@ function Sidebar() {
 
         <Link to="/leads">Leads</Link>
 
+        <Link to="/followups">Follow Ups</Link>
+
         <Link to="/documents">Documents</Link>
 
       </nav>

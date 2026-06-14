@@ -3,7 +3,7 @@ import {
   Routes,
   Route,
 } from "react-router-dom";
-
+import FollowUps from "./pages/FollowUps";
 import Sidebar from "./components/Sidebar";
 
 import Dashboard from "./pages/Dashboard";
@@ -38,6 +38,10 @@ function App() {
               element={<Leads />}
             />
 
+	    <Route
+  		path="/followups"
+  		element={<FollowUps />}
+	    />
             <Route
               path="/documents"
               element={<Documents />}

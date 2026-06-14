@@ -6,11 +6,13 @@ function Customers() {
   const [searchTerm, setSearchTerm] = useState("");
 
   const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    destination: "",
-  });
+  name: "",
+  phone: "",
+  email: "",
+  destination: "",
+  passport_number: "",
+  passport_expiry: "",
+});
 
   useEffect(() => {
     fetchCustomers();
@@ -45,11 +47,13 @@ function Customers() {
       );
 
       setFormData({
-        name: "",
-        phone: "",
-        email: "",
-        destination: "",
-      });
+  name: "",
+  phone: "",
+  email: "",
+  destination: "",
+  passport_number: "",
+  passport_expiry: "",
+});
 
       fetchCustomers();
     } catch (err) {
@@ -95,7 +99,22 @@ function Customers() {
         }
         className="w-full border p-3 rounded mb-4"
       />
+	<input
+  type="text"
+  name="passport_number"
+  placeholder="Passport Number"
+  value={formData.passport_number}
+  onChange={handleChange}
+  className="border p-2 rounded"
+/>
 
+<input
+  type="date"
+  name="passport_expiry"
+  value={formData.passport_expiry}
+  onChange={handleChange}
+  className="border p-2 rounded"
+/>
       <p className="mb-4 text-gray-600">
         Showing {filteredCustomers.length} customer(s)
       </p>
@@ -103,7 +122,7 @@ function Customers() {
       <form
         onSubmit={handleSubmit}
         className="mb-6 grid md:grid-cols-4 gap-4"
-      >
+        >
         <input
           type="text"
           name="name"
@@ -141,6 +160,22 @@ function Customers() {
           className="border p-2 rounded"
         />
 
+<input
+  type="text"
+  name="passport_number"
+  placeholder="Passport Number"
+  value={formData.passport_number}
+  onChange={handleChange}
+  className="border p-2 rounded"
+/>
+
+<input
+  type="date"
+  name="passport_expiry"
+  value={formData.passport_expiry}
+  onChange={handleChange}
+  className="border p-2 rounded"
+/>
         <button
           type="submit"
           className="bg-blue-600 text-white p-2 rounded"

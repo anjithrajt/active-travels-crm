@@ -460,6 +460,47 @@ app.post("/login", async (req, res) => {
     });
   }
 });
+app.get("/customers/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await pool.query(
+      "SELECT * FROM customers WHERE id=$1",
+      [id]
+    );
+
+    res.json(result.rows[0]);
+
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: "Failed to fetch customer",
+    });
+  }
+});
+app.get("/customers/:id/followups", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await pool.query(
+      `SELECT *
+       FROM followups
+       WHERE customer_id = $1
+       ORDER BY due_date ASC`,
+      [id]
+    );
+
+    res.json(result.rows);
+
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: "Failed to fetch followups"
+    });
+  }
+});
 app.listen(5000, () => {
   console.log("Server running on port 5000");
 });

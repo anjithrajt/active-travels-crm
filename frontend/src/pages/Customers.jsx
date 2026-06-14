@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-
+import { Link } from "react-router-dom";
 function Customers() {
   const [customers, setCustomers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -204,8 +204,13 @@ function Customers() {
                   className="border-b"
                 >
                   <td className="p-3">
-                    {customer.name}
-                  </td>
+  <Link
+    to={`/customers/${customer.id}`}
+    className="text-blue-600 underline"
+  >
+    {customer.name}
+  </Link>
+</td>
 
                   <td className="p-3">
                     {customer.phone}

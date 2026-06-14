@@ -13,7 +13,7 @@ import Leads from "./pages/Leads";
 import Documents from "./pages/Documents";
 import FollowUps from "./pages/FollowUps";
 import Login from "./pages/Login";
-
+import CustomerProfile from "./pages/CustomerProfile";
 function App() {
   const token = localStorage.getItem("token");
 
@@ -69,7 +69,10 @@ function App() {
               path="*"
               element={<Navigate to="/" />}
             />
-
+		<Route
+  path="/customers/:id"
+  element={<CustomerProfile />}
+/>
           </Routes>
 
         </div>

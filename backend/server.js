@@ -90,6 +90,14 @@ app.get("/dashboard/stats", async (req, res) => {
       "SELECT COUNT(*) FROM customers"
     );
 
+    const totalLeads = await pool.query(
+      "SELECT COUNT(*) FROM leads"
+    );
+
+    const pendingFollowups = await pool.query(
+      "SELECT COUNT(*) FROM followups WHERE status='Pending'"
+    );
+
     const destinations = await pool.query(
       "SELECT COUNT(DISTINCT destination) FROM customers"
     );
@@ -98,37 +106,22 @@ app.get("/dashboard/stats", async (req, res) => {
       totalCustomers: Number(
         totalCustomers.rows[0].count
       ),
+      totalLeads: Number(
+        totalLeads.rows[0].count
+      ),
+      pendingFollowups: Number(
+        pendingFollowups.rows[0].count
+      ),
       destinations: Number(
         destinations.rows[0].count
       ),
     });
+
   } catch (err) {
     console.error(err);
 
     res.status(500).json({
       error: "Failed to fetch stats",
-    });
-  }
-});
-app.put("/leads/:id/status", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
-
-    const result = await pool.query(
-      `UPDATE leads
-       SET status = $1
-       WHERE id = $2
-       RETURNING *`,
-      [status, id]
-    );
-
-    res.json(result.rows[0]);
-  } catch (err) {
-    console.error(err);
-
-    res.status(500).json({
-      error: "Failed to update status",
     });
   }
 });

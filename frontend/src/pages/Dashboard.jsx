@@ -3,9 +3,11 @@ import axios from "axios";
 
 function Dashboard() {
   const [stats, setStats] = useState({
-    totalCustomers: 0,
-    destinations: 0,
-  });
+  totalCustomers: 0,
+  totalLeads: 0,
+  pendingFollowups: 0,
+  destinations: 0,
+});
 
   const [alerts, setAlerts] = useState([]);
 
@@ -44,7 +46,47 @@ function Dashboard() {
         Dashboard
       </h2>
 
-      <div className="grid md:grid-cols-2 gap-6 mb-6">
+      <div className="grid md:grid-cols-4 gap-6 mb-6">
+
+  <div className="bg-white p-6 rounded-lg shadow">
+    <h3 className="text-gray-500">
+      Total Customers
+    </h3>
+
+    <p className="text-4xl font-bold">
+      {stats.totalCustomers}
+    </p>
+  </div>
+
+  <div className="bg-white p-6 rounded-lg shadow">
+    <h3 className="text-gray-500">
+      Total Leads
+    </h3>
+
+    <p className="text-4xl font-bold">
+      {stats.totalLeads}
+    </p>
+  </div>
+
+  <div className="bg-white p-6 rounded-lg shadow">
+    <h3 className="text-gray-500">
+      Pending Follow Ups
+    </h3>
+
+    <p className="text-4xl font-bold">
+      {stats.pendingFollowups}
+    </p>
+  </div>
+
+  <div className="bg-white p-6 rounded-lg shadow">
+    <h3 className="text-gray-500">
+      Destinations
+    </h3>
+
+    <p className="text-4xl font-bold">
+      {stats.destinations}
+    </p>
+  </div>
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-gray-500">
             Total Customers

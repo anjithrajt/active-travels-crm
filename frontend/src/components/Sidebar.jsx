@@ -23,6 +23,9 @@ const logout = () => {
         <Link to="/followups">Follow Ups</Link>
 
         <Link to="/documents">Documents</Link>
+        <Link to="/visa-applications">
+  Visa Applications
+</Link>
         <button
   onClick={logout}
   className="bg-red-600 text-white p-2 rounded mt-6"

@@ -4,12 +4,34 @@ const express = require("express");
 const cors = require("cors");
 const pool = require("./db");
 const PDFDocument = require("pdfkit");
+const multer = require("multer");
+const path = require("path");
+
 const app = express();
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
+  },
+
+  filename: (req, file, cb) => {
+    cb(
+      null,
+      Date.now() + "-" + file.originalname
+    );
+  },
+});
+
+const upload = multer({ storage });
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 app.use(cors());
 app.use(express.json());
 
+app.use(
+  "/uploads",
+  express.static("uploads")
+);
 app.get("/", (req, res) => {
   res.json({
     message: "Active Travels CRM API Running",
@@ -501,6 +523,241 @@ app.get("/customers/:id/followups", async (req, res) => {
     });
   }
 });
+app.post(
+  "/documents/upload",
+  upload.single("file"),
+  async (req, res) => {
+    try {
+      console.log("UPLOAD HIT");
+      console.log(req.body);
+      console.log(req.file);
+
+      const { customer_id } = req.body;
+
+      const result = await pool.query(
+        `INSERT INTO documents
+        (customer_id,file_name,file_path)
+        VALUES ($1,$2,$3)
+        RETURNING *`,
+        [
+          customer_id,
+          req.file.originalname,
+          req.file.filename,
+        ]
+      );
+
+      res.json(result.rows[0]);
+
+    } catch (err) {
+      console.error(err);
+
+      res.status(500).json({
+        error: "Upload failed",
+      });
+    }
+  }
+);
+app.get(
+  "/customers/:id/documents",
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const result = await pool.query(
+        `SELECT *
+         FROM documents
+         WHERE customer_id=$1
+         ORDER BY uploaded_at DESC`,
+        [id]
+      );
+
+      res.json(result.rows);
+
+    } catch (err) {
+      console.error(err);
+
+      res.status(500).json({
+        error: "Failed to fetch documents",
+      });
+    }
+  }
+);
+app.post(
+  "/documents/upload",
+  upload.single("file"),
+  async (req, res) => {
+    try {
+      const { customer_id } = req.body;
+
+      const result = await pool.query(
+        `INSERT INTO documents
+        (customer_id, file_name, file_path)
+        VALUES ($1,$2,$3)
+        RETURNING *`,
+        [
+          customer_id,
+          req.file.originalname,
+          req.file.filename,
+        ]
+      );
+
+      res.json(result.rows[0]);
+
+    } catch (err) {
+      console.error(err);
+
+      res.status(500).json({
+        error: "Upload failed",
+      });
+    }
+  }
+);
+app.get(
+  "/customers/:id/documents",
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const result = await pool.query(
+        `SELECT *
+         FROM documents
+         WHERE customer_id=$1
+         ORDER BY uploaded_at DESC`,
+        [id]
+      );
+
+      res.json(result.rows);
+
+    } catch (err) {
+      console.error(err);
+
+      res.status(500).json({
+        error: "Failed to fetch documents",
+      });
+    }
+  }
+);
+app.get("/documents", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        documents.*,
+        customers.name
+      FROM documents
+      LEFT JOIN customers
+      ON documents.customer_id = customers.id
+      ORDER BY documents.id DESC
+    `);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: "Failed to fetch documents"
+    });
+  }
+});
+app.post("/visa-applications", async (req, res) => {
+  try {
+    const {
+      customer_id,
+      country,
+      visa_type,
+      status,
+      application_date,
+      remarks
+    } = req.body;
+
+    const result = await pool.query(
+      `INSERT INTO visa_applications
+      (customer_id,country,visa_type,status,application_date,remarks)
+      VALUES ($1,$2,$3,$4,$5,$6)
+      RETURNING *`,
+      [
+        customer_id,
+        country,
+        visa_type,
+        status,
+        application_date,
+        remarks
+      ]
+    );
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      error: "Failed to create visa application"
+    });
+  }
+});
+app.get("/visa-applications", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        visa_applications.*,
+        customers.name
+      FROM visa_applications
+      JOIN customers
+      ON customers.id = visa_applications.customer_id
+      ORDER BY visa_applications.id DESC
+    `);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      error: "Failed to fetch visa applications"
+    });
+  }
+});
+app.put("/visa-applications/:id/status", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const result = await pool.query(
+      `UPDATE visa_applications
+       SET status=$1
+       WHERE id=$2
+       RETURNING *`,
+      [status, id]
+    );
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: "Failed to update visa status"
+    });
+  }
+});
+app.get(
+  "/customers/:id/visa-applications",
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const result = await pool.query(
+        `SELECT *
+         FROM visa_applications
+         WHERE customer_id=$1
+         ORDER BY id DESC`,
+        [id]
+      );
+
+      res.json(result.rows);
+    } catch (err) {
+      console.error(err);
+
+      res.status(500).json({
+        error: "Failed to fetch visa applications",
+      });
+    }
+  }
+);
 app.listen(5000, () => {
   console.log("Server running on port 5000");
 });

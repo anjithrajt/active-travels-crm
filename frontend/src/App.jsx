@@ -14,6 +14,7 @@ import Documents from "./pages/Documents";
 import FollowUps from "./pages/FollowUps";
 import Login from "./pages/Login";
 import CustomerProfile from "./pages/CustomerProfile";
+import VisaApplications from "./pages/VisaApplications";
 function App() {
   const token = localStorage.getItem("token");
 
@@ -39,7 +40,8 @@ function App() {
         <div className="flex-1 p-8">
 
           <Routes>
-
+	
+	   
             <Route
               path="/"
               element={<Dashboard />}
@@ -73,7 +75,12 @@ function App() {
   path="/customers/:id"
   element={<CustomerProfile />}
 />
+	<Route
+  path="/visa-applications"
+  element={<VisaApplications />}
+/>
           </Routes>
+          
 
         </div>
 

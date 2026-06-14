@@ -5,7 +5,8 @@ const cors = require("cors");
 const pool = require("./db");
 const PDFDocument = require("pdfkit");
 const app = express();
-
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 app.use(cors());
 app.use(express.json());
 
@@ -406,6 +407,56 @@ app.post("/leads/:id/convert", async (req, res) => {
 
     res.status(500).json({
       error: "Failed to convert lead",
+    });
+  }
+});
+app.post("/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    const result = await pool.query(
+      "SELECT * FROM admins WHERE username=$1",
+      [username]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({
+        error: "Invalid credentials",
+      });
+    }
+
+    const admin = result.rows[0];
+
+    const validPassword =
+      await bcrypt.compare(
+        password,
+        admin.password
+      );
+
+    if (!validPassword) {
+      return res.status(401).json({
+        error: "Invalid credentials",
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        id: admin.id,
+        username: admin.username,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
+
+    res.json({ token });
+
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: "Login failed",
     });
   }
 });

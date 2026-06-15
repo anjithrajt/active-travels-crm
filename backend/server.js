@@ -758,6 +758,124 @@ app.get(
     }
   }
 );
+app.post("/flight-bookings", async (req, res) => {
+  try {
+    const {
+      customer_id,
+      airline,
+      pnr,
+      departure_city,
+      arrival_city,
+      travel_date,
+      fare,
+      status
+    } = req.body;
+
+    const result = await pool.query(
+      `INSERT INTO flight_bookings
+      (
+        customer_id,
+        airline,
+        pnr,
+        departure_city,
+        arrival_city,
+        travel_date,
+        fare,
+        status
+      )
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+      RETURNING *`,
+      [
+        customer_id,
+        airline,
+        pnr,
+        departure_city,
+        arrival_city,
+        travel_date,
+        fare,
+        status || "Reserved"
+      ]
+    );
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: "Failed to create booking"
+    });
+  }
+});
+app.get("/flight-bookings", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        flight_bookings.*,
+        customers.name
+      FROM flight_bookings
+      JOIN customers
+      ON customers.id = flight_bookings.customer_id
+      ORDER BY flight_bookings.id DESC
+    `);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: "Failed to fetch bookings"
+    });
+  }
+});
+app.put(
+  "/flight-bookings/:id/status",
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+
+      const result = await pool.query(
+        `UPDATE flight_bookings
+         SET status=$1
+         WHERE id=$2
+         RETURNING *`,
+        [status, id]
+      );
+
+      res.json(result.rows[0]);
+    } catch (err) {
+      console.error(err);
+
+      res.status(500).json({
+        error: "Failed to update booking"
+      });
+    }
+  }
+);
+app.get(
+  "/customers/:id/flight-bookings",
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const result = await pool.query(
+        `SELECT *
+         FROM flight_bookings
+         WHERE customer_id = $1
+         ORDER BY id DESC`,
+        [id]
+      );
+
+      res.json(result.rows);
+    } catch (err) {
+      console.error(err);
+
+      res.status(500).json({
+        error: "Failed to fetch bookings",
+      });
+    }
+  }
+);
 app.listen(5000, () => {
   console.log("Server running on port 5000");
 });

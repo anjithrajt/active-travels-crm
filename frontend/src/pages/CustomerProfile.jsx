@@ -11,12 +11,12 @@ const [visaApplications, setVisaApplications] =
 
   const [customer, setCustomer] =
     useState(null);
-
-  useEffect(() => {
+useEffect(() => {
   fetchCustomer();
   fetchFollowUps();
   fetchDocuments();
   fetchVisaApplications();
+  fetchFlightBookings();
 }, []);
 const fetchDocuments = async () => {
   try {
@@ -93,6 +93,17 @@ const fetchVisaApplications =
       console.error(err);
     }
   };
+  const fetchFlightBookings = async () => {
+  try {
+    const res = await axios.get(
+      `http://localhost:5000/customers/${id}/flight-bookings`
+    );
+
+    setFlightBookings(res.data);
+  } catch (err) {
+    console.error(err);
+  }
+};
   if (!customer) {
     return <p>Loading...</p>;
   }
@@ -264,6 +275,66 @@ const fetchVisaApplications =
 
 </div>
 
+<div className="bg-white p-6 rounded shadow mt-6">
+
+  <h3 className="text-xl font-bold mb-4">
+    Flight Bookings
+  </h3>
+
+  {flightBookings.length === 0 ? (
+    <p>No flight bookings.</p>
+  ) : (
+    <table className="w-full">
+      <thead>
+        <tr className="border-b">
+          <th className="p-2 text-left">
+            Airline
+          </th>
+
+          <th className="p-2 text-left">
+            PNR
+          </th>
+
+          <th className="p-2 text-left">
+            Route
+          </th>
+
+          <th className="p-2 text-left">
+            Status
+          </th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {flightBookings.map((booking) => (
+          <tr
+            key={booking.id}
+            className="border-b"
+          >
+            <td className="p-2">
+              {booking.airline}
+            </td>
+
+            <td className="p-2">
+              {booking.pnr}
+            </td>
+
+            <td className="p-2">
+              {booking.departure_city}
+              {" → "}
+              {booking.arrival_city}
+            </td>
+
+            <td className="p-2">
+              {booking.status}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
+
+</div>
 </div>
     
   );

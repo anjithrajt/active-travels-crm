@@ -15,6 +15,7 @@ import FollowUps from "./pages/FollowUps";
 import Login from "./pages/Login";
 import CustomerProfile from "./pages/CustomerProfile";
 import VisaApplications from "./pages/VisaApplications";
+import FlightBookings from "./pages/FlightBookings";
 function App() {
   const token = localStorage.getItem("token");
 
@@ -78,6 +79,10 @@ function App() {
 	<Route
   path="/visa-applications"
   element={<VisaApplications />}
+/>	
+		<Route
+  path="/flight-bookings"
+  element={<FlightBookings />}
 />
           </Routes>
           

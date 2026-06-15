@@ -24,7 +24,9 @@ const logout = () => {
 
         <Link to="/documents">Documents</Link>
         <Link to="/visa-applications">
-  Visa Applications
+         Visa Applications</Link>
+         <Link to="/flight-bookings">
+  Flight Bookings
 </Link>
         <button
   onClick={logout}

@@ -894,6 +894,54 @@ app.get(
     }
   }
 );
+app.post("/leads/:id/convert", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const lead = await pool.query(
+      "SELECT * FROM leads WHERE id=$1",
+      [id]
+    );
+
+    if (lead.rows.length === 0) {
+      return res.status(404).json({
+        error: "Lead not found"
+      });
+    }
+
+    const data = lead.rows[0];
+
+    const customer = await pool.query(
+      `INSERT INTO customers
+      (
+        name,
+        phone,
+        destination
+      )
+      VALUES ($1,$2,$3)
+      RETURNING *`,
+      [
+        data.name,
+        data.phone,
+        data.destination
+      ]
+    );
+
+    await pool.query(
+      "DELETE FROM leads WHERE id=$1",
+      [id]
+    );
+
+    res.json(customer.rows[0]);
+
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: "Conversion failed"
+    });
+  }
+});
 app.listen(5000, () => {
   console.log("Server running on port 5000");
 });

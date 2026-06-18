@@ -67,23 +67,27 @@ function App() {
               path="/documents"
               element={<Documents />}
             />
-
-            <Route
-              path="*"
-              element={<Navigate to="/" />}
-            />
-		<Route
+		
+<Route
   path="/customers/:id"
   element={<CustomerProfile />}
 />
-	<Route
+
+<Route
   path="/visa-applications"
   element={<VisaApplications />}
-/>	
-		<Route
+/>
+
+<Route
   path="/flight-bookings"
   element={<FlightBookings />}
 />
+
+<Route
+  path="*"
+  element={<Navigate to="/" />}
+/>
+		
           </Routes>
           
 

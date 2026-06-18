@@ -11,6 +11,8 @@ const [visaApplications, setVisaApplications] =
 
   const [customer, setCustomer] =
     useState(null);
+    const [flightBookings, setFlightBookings] =
+  useState([]);
 useEffect(() => {
   fetchCustomer();
   fetchFollowUps();

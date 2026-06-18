@@ -942,6 +942,113 @@ app.post("/leads/:id/convert", async (req, res) => {
     });
   }
 });
+app.get("/notifications", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT *
+       FROM notifications
+       ORDER BY created_at DESC`
+    );
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: "Failed to fetch notifications",
+    });
+  }
+});
+app.post("/notifications/test", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `INSERT INTO notifications
+      (title, message)
+      VALUES
+      (
+        'Follow Up Due',
+        'Customer Anjith requires follow up today'
+      )
+      RETURNING *`
+    );
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: "Failed",
+    });
+  }
+});
+app.get("/notifications/auto", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        f.id,
+        c.name,
+        f.task,
+        f.due_date
+      FROM followups f
+      JOIN customers c
+        ON c.id = f.customer_id
+      WHERE
+        f.status = 'Pending'
+        AND f.due_date <= CURRENT_DATE
+      ORDER BY f.due_date ASC
+    `);
+
+    const notifications =
+      result.rows.map((item) => ({
+        title: "Follow Up Due",
+        message: `${item.name} - ${item.task}`,
+        due_date: item.due_date,
+      }));
+
+    res.json(notifications);
+
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: "Failed",
+    });
+  }
+});
+app.get("/notifications/auto", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        f.id,
+        c.name,
+        f.task,
+        f.due_date
+      FROM followups f
+      JOIN customers c
+        ON c.id = f.customer_id
+      WHERE
+        f.status = 'Pending'
+        AND f.due_date <= CURRENT_DATE
+      ORDER BY f.due_date ASC
+    `);
+
+    const notifications = result.rows.map(
+      (item) => ({
+        title: "Follow Up Due",
+        message: `${item.name} - ${item.task}`,
+        due_date: item.due_date,
+      })
+    );
+
+    res.json(notifications);
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: "Failed",
+    });
+  }
+});
 app.listen(5000, () => {
   console.log("Server running on port 5000");
 });

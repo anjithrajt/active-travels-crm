@@ -28,6 +28,9 @@ const logout = () => {
          <Link to="/flight-bookings">
   Flight Bookings
 </Link>
+<Link to="/notifications">
+  Notifications
+</Link>
         <button
   onClick={logout}
   className="bg-red-600 text-white p-2 rounded mt-6"

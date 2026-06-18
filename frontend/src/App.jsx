@@ -16,6 +16,7 @@ import Login from "./pages/Login";
 import CustomerProfile from "./pages/CustomerProfile";
 import VisaApplications from "./pages/VisaApplications";
 import FlightBookings from "./pages/FlightBookings";
+import Notifications from "./pages/Notifications";
 function App() {
   const token = localStorage.getItem("token");
 
@@ -87,7 +88,10 @@ function App() {
   path="*"
   element={<Navigate to="/" />}
 />
-		
+	<Route
+  path="/notifications"
+  element={<Notifications />}
+/>	
           </Routes>
           
 

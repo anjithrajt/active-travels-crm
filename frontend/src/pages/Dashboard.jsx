@@ -16,7 +16,11 @@ function Dashboard() {
   useEffect(() => {
     fetchStats();
     fetchAlerts();
+    fetchNotifications();
   }, []);
+  const [notifications, setNotifications] =
+  useState([]);
+  
 
   const fetchStats = async () => {
     try {
@@ -41,7 +45,18 @@ function Dashboard() {
       console.error(err);
     }
   };
+	
+  	const fetchNotifications = async () => {
+  try {
+    const res = await axios.get(
+      "http://localhost:5000/notifications/auto"
+    );
 
+    setNotifications(res.data);
+  } catch (err) {
+    console.error(err);
+  }
+};
   return (
     <div>
       <h2 className="text-3xl font-bold mb-6">
@@ -114,6 +129,28 @@ function Dashboard() {
       {stats.pendingFollowups}
     </p>
   </div>
+  <div className="bg-yellow-50 border p-6 rounded-lg shadow mb-6">
+
+  <h3 className="text-xl font-bold mb-4">
+    Notifications
+  </h3>
+
+  {notifications.length === 0 ? (
+    <p>No pending notifications.</p>
+  ) : (
+    <ul>
+      {notifications.map((item, index) => (
+        <li
+          key={index}
+          className="border-b py-2"
+        >
+          {item.message}
+        </li>
+      ))}
+    </ul>
+  )}
+
+</div>
         {alerts.length === 0 ? (
           <p>No passports expiring soon.</p>
         ) : (

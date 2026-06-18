@@ -113,33 +113,51 @@ app.get("/dashboard/stats", async (req, res) => {
       "SELECT COUNT(*) FROM customers"
     );
 
+    const destinations = await pool.query(
+      "SELECT COUNT(DISTINCT destination) FROM customers"
+    );
+
     const totalLeads = await pool.query(
       "SELECT COUNT(*) FROM leads"
     );
 
-    const pendingFollowups = await pool.query(
-      "SELECT COUNT(*) FROM followups WHERE status='Pending'"
+    const totalVisas = await pool.query(
+      "SELECT COUNT(*) FROM visa_applications"
     );
 
-    const destinations = await pool.query(
-      "SELECT COUNT(DISTINCT destination) FROM customers"
+    const totalBookings = await pool.query(
+      "SELECT COUNT(*) FROM flight_bookings"
+    );
+
+    const revenue = await pool.query(
+      "SELECT COALESCE(SUM(fare),0) FROM flight_bookings"
     );
 
     res.json({
       totalCustomers: Number(
         totalCustomers.rows[0].count
       ),
-      totalLeads: Number(
-        totalLeads.rows[0].count
-      ),
-      pendingFollowups: Number(
-        pendingFollowups.rows[0].count
-      ),
+
       destinations: Number(
         destinations.rows[0].count
       ),
-    });
 
+      totalLeads: Number(
+        totalLeads.rows[0].count
+      ),
+
+      totalVisas: Number(
+        totalVisas.rows[0].count
+      ),
+
+      totalBookings: Number(
+        totalBookings.rows[0].count
+      ),
+
+      revenue: Number(
+        revenue.rows[0].coalesce
+      ),
+    });
   } catch (err) {
     console.error(err);
 

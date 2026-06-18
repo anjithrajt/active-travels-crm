@@ -13,12 +13,15 @@ const [visaApplications, setVisaApplications] =
     useState(null);
     const [flightBookings, setFlightBookings] =
   useState([]);
+  const [activities, setActivities] =
+  useState([]);
 useEffect(() => {
   fetchCustomer();
   fetchFollowUps();
   fetchDocuments();
   fetchVisaApplications();
   fetchFlightBookings();
+  fetchActivities();
 }, []);
 const fetchDocuments = async () => {
   try {
@@ -109,7 +112,17 @@ const fetchVisaApplications =
   if (!customer) {
     return <p>Loading...</p>;
   }
+const fetchActivities = async () => {
+  try {
+    const res = await axios.get(
+      `http://localhost:5000/customers/${id}/activities`
+    );
 
+    setActivities(res.data);
+  } catch (err) {
+    console.error(err);
+  }
+};
   return (
   
     <div>
@@ -334,6 +347,42 @@ const fetchVisaApplications =
         ))}
       </tbody>
     </table>
+  )}
+
+</div>
+<div className="bg-white p-6 rounded shadow mt-6">
+
+  <h3 className="text-xl font-bold mb-4">
+    Activity Timeline
+  </h3>
+
+  {activities.length === 0 ? (
+    <p>No activities found.</p>
+  ) : (
+    <ul>
+      {activities.map((activity) => (
+        <li
+          key={activity.id}
+          className="border-b py-3"
+        >
+          <strong>
+            {activity.activity_type}
+          </strong>
+
+          <br />
+
+          {activity.description}
+
+          <br />
+
+          <small>
+            {new Date(
+              activity.created_at
+            ).toLocaleString()}
+          </small>
+        </li>
+      ))}
+    </ul>
   )}
 
 </div>

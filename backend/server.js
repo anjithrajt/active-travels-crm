@@ -1049,6 +1049,31 @@ app.get("/notifications/auto", async (req, res) => {
     });
   }
 });
+app.get(
+  "/customers/:id/activities",
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const result = await pool.query(
+        `SELECT *
+         FROM activities
+         WHERE customer_id=$1
+         ORDER BY created_at DESC`,
+        [id]
+      );
+
+      res.json(result.rows);
+
+    } catch (err) {
+      console.error(err);
+
+      res.status(500).json({
+        error: "Failed",
+      });
+    }
+  }
+);
 app.listen(5000, () => {
   console.log("Server running on port 5000");
 });

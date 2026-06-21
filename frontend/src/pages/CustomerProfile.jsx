@@ -15,6 +15,17 @@ const [visaApplications, setVisaApplications] =
   useState([]);
   const [activities, setActivities] =
   useState([]);
+  const fetchActivities = async () => {
+  try {
+    const res = await axios.get(
+      `http://localhost:5000/customers/${id}/activities`
+    );
+
+    setActivities(res.data);
+  } catch (err) {
+    console.error(err);
+  }
+};
 useEffect(() => {
   fetchCustomer();
   fetchFollowUps();
@@ -112,17 +123,7 @@ const fetchVisaApplications =
   if (!customer) {
     return <p>Loading...</p>;
   }
-const fetchActivities = async () => {
-  try {
-    const res = await axios.get(
-      `http://localhost:5000/customers/${id}/activities`
-    );
 
-    setActivities(res.data);
-  } catch (err) {
-    console.error(err);
-  }
-};
   return (
   
     <div>

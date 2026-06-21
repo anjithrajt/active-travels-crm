@@ -21,6 +21,24 @@ const storage = multer.diskStorage({
     );
   },
 });
+const addActivity = async (
+  customerId,
+  activityType,
+  description
+) => {
+  await pool.query(
+    `
+    INSERT INTO activities
+    (customer_id, activity_type, description)
+    VALUES ($1,$2,$3)
+    `,
+    [
+      customerId,
+      activityType,
+      description,
+    ]
+  );
+};
 
 const upload = multer({ storage });
 const bcrypt = require("bcryptjs");
@@ -354,6 +372,11 @@ app.post("/followups", async (req, res) => {
       RETURNING *`,
       [customer_id, task, due_date]
     );
+    await addActivity(
+  customer_id,
+  "Follow Up Added",
+  task
+);
 
     res.json(result.rows[0]);
   } catch (err) {
@@ -563,7 +586,11 @@ app.post(
           req.file.filename,
         ]
       );
-
+        await addActivity(
+  customer_id,
+  "Document Uploaded",
+  req.file.originalname
+);
       res.json(result.rows[0]);
 
     } catch (err) {
@@ -701,6 +728,11 @@ app.post("/visa-applications", async (req, res) => {
         remarks
       ]
     );
+    await addActivity(
+  customer_id,
+  "Visa Application",
+  `${country} - ${visa_type}`
+);
 
     res.json(result.rows[0]);
   } catch (err) {
@@ -814,6 +846,11 @@ app.post("/flight-bookings", async (req, res) => {
         status || "Reserved"
       ]
     );
+    await addActivity(
+  customer_id,
+  "Flight Booking",
+  `${airline} (${pnr})`
+);
 
     res.json(result.rows[0]);
   } catch (err) {

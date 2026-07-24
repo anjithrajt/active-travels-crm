@@ -1,6 +1,17 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import {
   Users,
   UserPlus,
   CalendarClock,
@@ -94,11 +105,46 @@ function Dashboard() {
     </div>
   </div>
 );
+const bookingData = [
+  { month: "Jan", bookings: 4 },
+  { month: "Feb", bookings: 7 },
+  { month: "Mar", bookings: 5 },
+  { month: "Apr", bookings: 8 },
+  { month: "May", bookings: 10 },
+  { month: "Jun", bookings: stats.totalBookings },
+];
+
+const visaData = [
+  {
+    name: "Approved",
+    value: 2,
+  },
+  {
+    name: "Pending",
+    value: 1,
+  },
+  {
+    name: "Rejected",
+    value: 0,
+  },
+];
+
+const COLORS = [
+  "#10B981",
+  "#F59E0B",
+  "#EF4444",
+];
   return (
     <div>
-      <h2 className="text-3xl font-bold mb-6">
-        Dashboard
-      </h2>
+      <div className="mb-8">
+  <h1 className="text-4xl font-bold text-slate-800">
+    Dashboard
+  </h1>
+
+  <p className="text-slate-500 mt-2">
+    Welcome back! Here's an overview of your travel business.
+  </p>
+</div>
 
       <div className="grid md:grid-cols-4 gap-6 mb-8">
 
@@ -167,6 +213,73 @@ function Dashboard() {
   )}
   
 </div>  
+      <div className="grid lg:grid-cols-2 gap-6 my-6">
+
+  <div className="bg-white rounded-2xl shadow-xl p-6">
+
+    <h3 className="text-xl font-bold mb-6">
+      Monthly Flight Bookings
+    </h3>
+
+    <ResponsiveContainer
+      width="100%"
+      height={300}
+    >
+      <BarChart data={bookingData}>
+
+        <XAxis dataKey="month"/>
+
+        <YAxis/>
+
+        <Tooltip/>
+
+        <Bar
+          dataKey="bookings"
+          fill="#2563EB"
+          radius={[8,8,0,0]}
+        />
+
+      </BarChart>
+    </ResponsiveContainer>
+
+  </div>
+
+  <div className="bg-white rounded-2xl shadow-xl p-6">
+
+    <h3 className="text-xl font-bold mb-6">
+      Visa Status
+    </h3>
+
+    <ResponsiveContainer
+      width="100%"
+      height={300}
+    >
+      <PieChart>
+
+        <Pie
+          data={visaData}
+          dataKey="value"
+          outerRadius={110}
+          label
+        >
+
+          {visaData.map((entry,index)=>(
+            <Cell
+              key={index}
+              fill={COLORS[index]}
+            />
+          ))}
+
+        </Pie>
+
+        <Tooltip/>
+
+      </PieChart>
+    </ResponsiveContainer>
+
+  </div>
+
+</div>
         <div className="bg-white rounded-2xl shadow-xl p-8 mt-6">
 
   <h3 className="text-2xl font-bold text-red-600 mb-6">

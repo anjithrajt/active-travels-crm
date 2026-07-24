@@ -76,13 +76,6 @@ const menuClass = ({ isActive }) =>
   Follow Ups
 </NavLink>
         <NavLink
-  to="/tasks"
-  className={menuClass}
->
-  <CheckSquare size={20}/>
-  Tasks
-</NavLink>
-        <NavLink
   to="/documents"
   className={menuClass}
 >

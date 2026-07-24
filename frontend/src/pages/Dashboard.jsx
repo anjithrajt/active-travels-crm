@@ -1,5 +1,14 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import {
+  Users,
+  UserPlus,
+  CalendarClock,
+  Globe,
+  FileText,
+  Plane,
+  IndianRupee,
+} from "lucide-react";
 
 function Dashboard() {
   const [stats, setStats] = useState({
@@ -57,84 +66,91 @@ function Dashboard() {
     console.error(err);
   }
 };
+    const StatCard = ({
+  title,
+  value,
+  icon,
+  color,
+}) => (
+  <div
+    className={`bg-gradient-to-r ${color} text-white rounded-2xl shadow-lg p-6 hover:scale-105 transition-all duration-300`}
+  >
+    <div className="flex justify-between items-center">
+
+      <div>
+
+        <p className="text-sm opacity-90">
+          {title}
+        </p>
+
+        <h2 className="text-4xl font-bold mt-2">
+          {value}
+        </h2>
+
+      </div>
+
+      <div>{icon}</div>
+
+    </div>
+  </div>
+);
   return (
     <div>
       <h2 className="text-3xl font-bold mb-6">
         Dashboard
       </h2>
 
-      <div className="grid md:grid-cols-3 gap-6 mb-6">
+      <div className="grid md:grid-cols-4 gap-6 mb-8">
 
-  <div className="bg-white p-6 rounded-lg shadow">
-    <h3 className="text-gray-500">
-      Total Customers
-    </h3>
-    <p className="text-4xl font-bold">
-      {stats.totalCustomers}
-    </p>
-  </div>
+  <StatCard
+    title="Customers"
+    value={stats.totalCustomers}
+    icon={<Users size={40} />}
+    color="from-blue-500 to-blue-700"
+  />
 
-  <div className="bg-white p-6 rounded-lg shadow">
-    <h3 className="text-gray-500">
-      Total Leads
-    </h3>
-    <p className="text-4xl font-bold">
-      {stats.totalLeads}
-    </p>
-  </div>
+  <StatCard
+    title="Leads"
+    value={stats.totalLeads}
+    icon={<UserPlus size={40} />}
+    color="from-purple-500 to-purple-700"
+  />
 
-  <div className="bg-white p-6 rounded-lg shadow">
-    <h3 className="text-gray-500">
-      Destinations
-    </h3>
-    <p className="text-4xl font-bold">
-      {stats.destinations}
-    </p>
-  </div>
+  <StatCard
+    title="Follow Ups"
+    value={stats.pendingFollowups || 0}
+    icon={<CalendarClock size={40} />}
+    color="from-orange-500 to-orange-700"
+  />
 
-  <div className="bg-white p-6 rounded-lg shadow">
-    <h3 className="text-gray-500">
-      Visa Applications
-    </h3>
-    <p className="text-4xl font-bold">
-      {stats.totalVisas}
-    </p>
-  </div>
+  <StatCard
+    title="Destinations"
+    value={stats.destinations}
+    icon={<Globe size={40} />}
+    color="from-green-500 to-green-700"
+  />
 
-  <div className="bg-white p-6 rounded-lg shadow">
-    <h3 className="text-gray-500">
-      Flight Bookings
-    </h3>
-    <p className="text-4xl font-bold">
-      {stats.totalBookings}
-    </p>
-  </div>
+  <StatCard
+    title="Visa Applications"
+    value={stats.totalVisas}
+    icon={<FileText size={40} />}
+    color="from-cyan-500 to-cyan-700"
+  />
 
-  <div className="bg-white p-6 rounded-lg shadow">
-    <h3 className="text-gray-500">
-      Revenue
-    </h3>
-    <p className="text-4xl font-bold">
-      ₹{stats.revenue}
-    </p>
-  </div>
+  <StatCard
+    title="Flight Bookings"
+    value={stats.totalBookings}
+    icon={<Plane size={40} />}
+    color="from-pink-500 to-pink-700"
+  />
 
-</div>
-	<div className="bg-white p-6 rounded-lg shadow">
-    <h3 className="text-gray-500">
-      Pending Follow Ups
-    </h3>
-
-    <p className="text-4xl font-bold">
-      {stats.pendingFollowups}
-    </p>
-  </div>
-  <div className="bg-yellow-50 border p-6 rounded-lg shadow mb-6">
-
-  <h3 className="text-xl font-bold mb-4">
-    Notifications
-  </h3>
-
+  <StatCard
+    title="Revenue"
+    value={`₹${stats.revenue}`}
+    icon={<IndianRupee size={40} />}
+    color="from-emerald-500 to-emerald-700"
+  />
+  
   {notifications.length === 0 ? (
     <p>No pending notifications.</p>
   ) : (
@@ -149,8 +165,15 @@ function Dashboard() {
       ))}
     </ul>
   )}
+  
+</div>  
+        <div className="bg-white rounded-2xl shadow-xl p-8 mt-6">
 
-</div>
+  <h3 className="text-2xl font-bold text-red-600 mb-6">
+    🚨 Passport Expiry Alerts
+  </h3>
+  </div>  
+
         {alerts.length === 0 ? (
           <p>No passports expiring soon.</p>
         ) : (
@@ -169,9 +192,11 @@ function Dashboard() {
                   Expiry Date
                 </th>
               </tr>
+              
             </thead>
 
             <tbody>
+              
               {alerts.map((customer) => (
                 <tr
                   key={customer.id}
